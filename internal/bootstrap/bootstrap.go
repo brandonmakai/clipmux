@@ -3,6 +3,8 @@ package  bootstrap
 import (
 	"os"
 	"path/filepath"
+
+	"github.com/brandonmakai/clipmux/internal/logger"
 )
 
 const CLIPMUX string = "clipmux"
@@ -17,8 +19,11 @@ func GetPath() string {
 	return clipmuxPath
 }
 
-func BootStrap() {
+func BootStrap() *logger.Logger {
 	if err := os.MkdirAll(GetPath(), 0755); err != nil {
 		panic(err)
 	}
+
+	logger := logger.GetLogger(GetPath())
+	return logger
 }
