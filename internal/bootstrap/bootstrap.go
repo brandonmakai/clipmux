@@ -8,14 +8,14 @@ import (
 	"github.com/brandonmakai/clipmux/persistence"
 )
 
-const CLIPMUX string = "clipmux"
+const clipMux string = "clipmux"
 
 func GetPath() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
 			panic(err)
 	}
-	clipmuxPath := filepath.Join(home, CLIPMUX)
+	clipmuxPath := filepath.Join(home, clipMux)
 
 	return clipmuxPath
 }
