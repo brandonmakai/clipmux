@@ -1,4 +1,4 @@
-package  bootstrap 
+package bootstrap
 
 import (
 	"os"
@@ -13,7 +13,7 @@ const clipMux string = "clipmux"
 func GetPath() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-			panic(err)
+		panic(err)
 	}
 	clipmuxPath := filepath.Join(home, clipMux)
 

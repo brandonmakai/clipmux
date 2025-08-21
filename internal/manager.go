@@ -4,25 +4,25 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/brandonmakai/clipmux/persistence"
 	"github.com/brandonmakai/clipmux/internal/logger"
+	"github.com/brandonmakai/clipmux/persistence"
 	hook "github.com/robotn/gohook"
 )
 
 var lastText string
 var pasteHotkey = []string{"q", "ctrl", "i"}
 
-type ClipboardManager struct { 
-	clipIO ReadPaster
+type ClipboardManager struct {
+	clipIO  ReadPaster
 	history *persistence.ClipboardHistory
-	log *logger.Logger
+	log     *logger.Logger
 }
 
-func NewClipboardManager(io ReadPaster, history *persistence.ClipboardHistory, log *logger.Logger) *ClipboardManager{
+func NewClipboardManager(io ReadPaster, history *persistence.ClipboardHistory, log *logger.Logger) *ClipboardManager {
 	return &ClipboardManager{
-		clipIO: io, 
+		clipIO:  io,
 		history: history,
-		log: log,
+		log:     log,
 	}
 }
 
@@ -36,12 +36,12 @@ func (cm *ClipboardManager) get() error {
 
 	if text != lastText {
 		text_bytes := []byte(text)
-		cm.history.Append(text_bytes)	
+		cm.history.Append(text_bytes)
 
 		msg := fmt.Sprintf("Added new item to history: %s\n", text)
 		cm.log.Info(msg)
 	}
-	
+
 	return nil
 }
 
@@ -50,38 +50,38 @@ func (cm *ClipboardManager) paste() error {
 	if !found {
 		cm.log.Info("No items found in clipmux history.")
 		return nil
-	} 
-	
+	}
+
 	text := string(item.Data)
 	err := cm.clipIO.Paste(text)
 
 	cm.log.Error(err.Error())
-	return err 
+	return err
 }
 
 func (cm *ClipboardManager) Run() error {
-    errCh := make(chan error)
+	errCh := make(chan error)
 
-    hook.Register(hook.KeyDown, pasteHotkey, func(e hook.Event) {
-        if err := cm.paste(); err != nil {
-            errCh <- err
-        }
-    })
+	hook.Register(hook.KeyDown, pasteHotkey, func(e hook.Event) {
+		if err := cm.paste(); err != nil {
+			errCh <- err
+		}
+	})
 
-    hook.Start()
-    defer hook.End()
+	hook.Start()
+	defer hook.End()
 
-    for {
-        select {
-        case err := <-errCh:
-						// Propogate dependency errors to main so the application can terminate 
-            return err
-        default:
-            // Retrieve clipboard periodically
-            if err := cm.get(); err != nil {
-                return err
-            }
-            time.Sleep(100 * time.Millisecond)
-        }
-    }
+	for {
+		select {
+		case err := <-errCh:
+			// Propogate dependency errors to so the application can terminate
+			return err
+		default:
+			// Retrieve clipboard periodically
+			if err := cm.get(); err != nil {
+				return err
+			}
+			time.Sleep(100 * time.Millisecond)
+		}
+	}
 }

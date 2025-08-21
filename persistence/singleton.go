@@ -7,7 +7,7 @@ import (
 
 var (
 	instance *ClipboardHistory
-	once sync.Once
+	once     sync.Once
 )
 
 func GetHistory(capacity int, maxItemBytes int, maxBytes int) *ClipboardHistory {
