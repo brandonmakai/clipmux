@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/brandonmakai/clipmux/internal/logger"
+	"github.com/brandonmakai/clipmux/persistence"
 )
 
 const CLIPMUX string = "clipmux"
@@ -19,11 +20,13 @@ func GetPath() string {
 	return clipmuxPath
 }
 
-func BootStrap() *logger.Logger {
+func BootStrap(capacity int, maxItemBytes int, maxBytes int) (*logger.Logger, *persistence.ClipboardHistory) {
 	if err := os.MkdirAll(GetPath(), 0755); err != nil {
 		panic(err)
 	}
 
 	logger := logger.GetLogger(GetPath())
-	return logger
+	history := persistence.GetHistory(capacity, maxItemBytes, maxBytes)
+
+	return logger, history
 }
