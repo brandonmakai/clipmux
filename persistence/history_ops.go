@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"time"
+	"fmt"
 )
 
 func newHistory(capacity int, maxBytes int, maxItemBytes int) *ClipboardHistory {
@@ -14,9 +15,13 @@ func newHistory(capacity int, maxBytes int, maxItemBytes int) *ClipboardHistory 
 }
 
 func (ch *ClipboardHistory) Append(data []byte) {
+	fmt.Println("Append Triggered")
+	fmt.Printf("Before String data: %s, Bytes data: %v\n", string(data), data)
 	if ch.capacity > 0 && len(data) > ch.maxItemBytes {
 		data = data[:ch.maxItemBytes]
 	}
+	fmt.Printf("After String data: %s, Bytes data: %v\n", string(data), data)
+
 	ch.mu.Lock()
 	defer ch.mu.Unlock()
 
@@ -32,6 +37,7 @@ func (ch *ClipboardHistory) Append(data []byte) {
 	}
 
 	idx := (ch.head + ch.count) % ch.capacity
+	fmt.Println("Index: ", idx)
 
 	cp := make([]byte, len(data))
 	copy(cp, data)
@@ -41,6 +47,8 @@ func (ch *ClipboardHistory) Append(data []byte) {
 		ch.currBytes -= len(ch.buf[idx].Data)
 	}
 
+	fmt.Printf("Appended data: %v", cp)
+
 	ch.buf[idx] = Item{Data: cp, CreatedAt: time.Now()}
 	ch.count++
 	ch.currBytes += len(data)
@@ -48,7 +56,7 @@ func (ch *ClipboardHistory) Append(data []byte) {
 
 func (ch *ClipboardHistory) evictOldest() {
 	old := &ch.buf[ch.head]
-	ch.currBytes = len(old.Data)
+	ch.currBytes -= len(old.Data)
 	*old = Item{}
 	ch.count--
 }
@@ -61,12 +69,19 @@ func (ch *ClipboardHistory) GetNewest() (Item, bool) {
 		return Item{}, false
 	}
 
-	idx := (ch.head + ch.count) % ch.capacity
+	// Subtract by 1 due to append statement incrementing the count
+	idx := (ch.head + ch.count - 1) % ch.capacity
+	fmt.Println("GetNewest Index: ", idx)
 	it := ch.buf[idx]
 
 	cp := make([]byte, len(it.Data))
-	cp = it.Data
+	copy(cp, it.Data)
 	it.Data = cp
+	
+	if it.Data == nil {
+		fmt.Println("Newest data is nil!")
+	}
+	fmt.Println("Newest value: ", string(it.Data))
 
 	return it, true
 }
