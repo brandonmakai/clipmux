@@ -14,6 +14,10 @@ func newHistory(capacity int, maxBytes int, maxItemBytes int) *ClipboardHistory 
 	}
 }
 
+func (ch *ClipboardHistory) Newest() int {
+	return ch.count
+}
+
 func (ch *ClipboardHistory) Append(data []byte) {
 	fmt.Println("Append Triggered")
 	fmt.Printf("Before String data: %s, Bytes data: %v\n", string(data), data)
@@ -82,6 +86,27 @@ func (ch *ClipboardHistory) GetNewest() (Item, bool) {
 		fmt.Println("Newest data is nil!")
 	}
 	fmt.Println("Newest value: ", string(it.Data))
+
+	return it, true
+}
+
+func (ch *ClipboardHistory) GetPos(idx int) (Item, bool) {
+	fmt.Println("GetPos triggered.")
+	ch.mu.RLock()
+	defer ch.mu.RUnlock()
+
+	if ch.count == 0 {
+		return Item{}, false
+	}
+
+	it := ch.buf[idx]
+	if it.Data == nil {
+		return Item{}, false
+	}
+
+	cp := make([]byte, len(it.Data))
+	copy(cp, it.Data)
+	it.Data = cp
 
 	return it, true
 }
