@@ -4,12 +4,12 @@ A lightweight clipboard multiplexer for power users.
 Access your clipboard history via global hotkeys, just like tmux for your clipboard.
 
 ## Planned Features
-* Tracks the last N clipboard entries (default: 10).
+* Tracks the last N clipboard entries (default: 10). ✅
 * Access items directly via numeric hotkeys (Ctrl+Alt+1 → first item, Ctrl+Alt+2 → second item).
-* Deduplicates clipboard entries automatically.
+* Deduplicates clipboard entries automatically. ✅
 * Persists clipboard history across sessions.
 * Minimal design – no menus or distractions, just direct clipboard access.
-* macOS supported
+* macOS supported ✅
 
 ## Planned Usage
 Run ClipMux
@@ -35,7 +35,7 @@ ClipMux is open source and welcomes contributions!
 5. Open a Pull Request
 
 ### Roadmap
-1. MVP: Clipboard history tracking + hotkeys (WOP)
+1. MVP: Clipboard history tracking + hotkeys (WOP) 
 2. Customer Bindings 
 3. Terminal CLI Commands
 4. Cross-platform support and testing
