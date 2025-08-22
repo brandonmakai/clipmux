@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"time"
+	"strconv"
 
 	"github.com/brandonmakai/clipmux/internal/logger"
 	"github.com/brandonmakai/clipmux/persistence"
@@ -46,8 +47,9 @@ func (cm *ClipboardManager) get() error {
 	return nil
 }
 
-func (cm *ClipboardManager) paste() error {
-    if cm.history == nil {
+func (cm *ClipboardManager) paste(idx int) error {
+		var item persistence.Item
+		if cm.history == nil {
         fmt.Println("cm.history is nil!")
         return fmt.Errorf("clipboard history not initialized")
     }
@@ -55,12 +57,24 @@ func (cm *ClipboardManager) paste() error {
         fmt.Println("cm.clipIO is nil!")
         return fmt.Errorf("clipboard IO not initialized")
     }
+		
+		fmt.Println("Paste triggered with index: ", idx)
+		if idx == cm.history.Newest() {
+			var found = false
+			item, found = cm.history.GetNewest()
 
-    item, found := cm.history.GetNewest()
-    if !found {
+			if !found {
         cm.log.Info("No items found in clipmux history.")
         return nil
-    }
+	    }
+		} else {
+			var found = false 
+			item, found = cm.history.GetPos(idx)
+
+			if !found {
+				cm.log.Info(fmt.Sprintf("Item not found at index: %v", idx))
+			}
+		}
 
     if item.Data == nil {
         fmt.Println("item.Data is nil!")
@@ -81,21 +95,26 @@ func (cm *ClipboardManager) Run() error {
 	errCh := make(chan error)
 	
 	fmt.Printf("ClipIO: %v, History %v\n", cm.clipIO, cm.history)
-	hook.Register(hook.KeyDown, pasteHotkey, func(e hook.Event) {
-		fmt.Println("Callback started for hotkey") // NEW
-    defer func() {
-    if r := recover(); r != nil {
-            fmt.Println("Recovered from panic:", r)
-        }
-    }()
-		fmt.Println("Hotkey pressed")
-		if err := cm.paste(); err != nil {
-			select { 
-			case errCh <- err:
-			default:
+	for pos := range 10 {
+		hotkey := append([]string(nil), pasteHotkey...)
+		hotkey = append(hotkey, strconv.Itoa(pos))
+
+		hook.Register(hook.KeyDown, hotkey, func(e hook.Event) {
+			fmt.Println("Callback started for hotkey index: ", pos) // NEW
+			defer func() {
+			if r := recover(); r != nil {
+							fmt.Println("Recovered from panic:", r)
+					}
+			}()
+			fmt.Println("Hotkey pressed")
+			if err := cm.paste(pos); err != nil {
+				select { 
+				case errCh <- err:
+				default:
+				}
 			}
-		}
-	})
+		})
+	}
 
 	go func() {
 		s := hook.Start()
