@@ -31,24 +31,31 @@ func NewClipboardManager(io ReadPaster, history *persistence.ClipboardHistory, l
 	}
 }
 
-func (cm *ClipboardManager) get() error {
+func (cm *ClipboardManager) get(linearHistory bool) error {
 	text, err := cm.clipIO.Read()
 	if err != nil {
 		cm.log.Error(err.Error())
 		return err
 	}
 
-	if text != cm.lastText && !cm.history.Contains(text) {
-		fmt.Println("Appending Text: ", text)
-		text_bytes := []byte(text)
-		cm.history.Append(text_bytes)
-
-		msg := fmt.Sprintf("Added new item to history: %s\n", text)
-		cm.log.Info(msg)
-		cm.lastText = text
+	if linearHistory {
+		if text != cm.lastText || !cm.history.Contains(text) {
+			cm.appendToHistory(text)
+		}
+	} else {
+		if text != cm.lastText {
+			cm.appendToHistory(text)
+		}
 	}
 
 	return nil
+}
+
+func (cm *ClipboardManager) appendToHistory(text string) {
+	fmt.Println("Appending Text: ", text)
+	cm.history.Append([]byte(text))
+	cm.log.Info(fmt.Sprintf("Added new item to history: %s\n", text))
+	cm.lastText = text
 }
 
 func (cm *ClipboardManager) paste(idx int) error {
@@ -112,7 +119,7 @@ func (cm *ClipboardManager) Run() error {
 		case err := <- errCh:
 			return err
 		default:
-			if err := cm.get(); err != nil {
+			if err := cm.get(linearHistory); err != nil {
 				return err
 			}
 			time.Sleep(100 * time.Millisecond)
