@@ -27,7 +27,6 @@ func NewClipboardManager(io ReadPaster, history *persistence.ClipboardHistory, l
 	}
 }
 
-// TODO: Add 'Get' by index
 func (cm *ClipboardManager) get() error {
 	text, err := cm.clipIO.Read()
 	if err != nil {
@@ -35,7 +34,8 @@ func (cm *ClipboardManager) get() error {
 		return err
 	}
 
-	if text != lastText {
+	if text != lastText || !cm.history.Contains(text) {
+		fmt.Println("Appending Text: ", text)
 		text_bytes := []byte(text)
 		cm.history.Append(text_bytes)
 
@@ -58,7 +58,6 @@ func (cm *ClipboardManager) paste(idx int) error {
         return fmt.Errorf("clipboard IO not initialized")
     }
 		
-		fmt.Println("Paste triggered with index: ", idx)
 		if idx == cm.history.Newest() {
 			var found = false
 			item, found = cm.history.GetNewest()
@@ -94,18 +93,12 @@ func (cm *ClipboardManager) paste(idx int) error {
 func (cm *ClipboardManager) Run() error {
 	errCh := make(chan error)
 	
-	fmt.Printf("ClipIO: %v, History %v\n", cm.clipIO, cm.history)
 	for pos := range 10 {
 		hotkey := append([]string(nil), pasteHotkey...)
 		hotkey = append(hotkey, strconv.Itoa(pos))
 
 		hook.Register(hook.KeyDown, hotkey, func(e hook.Event) {
 			fmt.Println("Callback started for hotkey index: ", pos) // NEW
-			defer func() {
-			if r := recover(); r != nil {
-							fmt.Println("Recovered from panic:", r)
-					}
-			}()
 			fmt.Println("Hotkey pressed")
 			if err := cm.paste(pos); err != nil {
 				select { 
