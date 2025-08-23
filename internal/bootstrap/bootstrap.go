@@ -20,13 +20,13 @@ func GetPath() string {
 	return clipmuxPath
 }
 
-func BootStrap(capacity int, maxItemBytes int, maxBytes int) (*logger.Logger, *persistence.ClipboardHistory) {
+func BootStrap(capacity int, maxItemBytes int, maxBytes int, chronologicalHistory bool) (*logger.Logger, persistence.ClipboardHistory) {
 	if err := os.MkdirAll(GetPath(), 0755); err != nil {
 		panic(err)
 	}
 
 	logger := logger.GetLogger(GetPath())
-	history := persistence.GetHistory(capacity, maxItemBytes, maxBytes)
+	history := persistence.GetHistory(chronologicalHistory, capacity, maxItemBytes, maxBytes)
 
 	return logger, history
 }

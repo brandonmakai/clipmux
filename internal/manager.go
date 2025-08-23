@@ -17,12 +17,12 @@ const linearHistory = true
 
 type ClipboardManager struct {
 	clipIO  ReadPaster
-	history *persistence.ClipboardHistory
+	history persistence.ClipboardHistory
 	log     *logger.Logger
 	lastText string
 }
 
-func NewClipboardManager(io ReadPaster, history *persistence.ClipboardHistory, log *logger.Logger) *ClipboardManager {
+func NewClipboardManager(io ReadPaster, history persistence.ClipboardHistory, log *logger.Logger) *ClipboardManager {
 	return &ClipboardManager{
 		clipIO:  io,
 		history: history,
@@ -39,7 +39,7 @@ func (cm *ClipboardManager) get(linearHistory bool) error {
 	}
 
 	if linearHistory {
-		if text != cm.lastText || !cm.history.Contains(text) {
+		if text != cm.lastText && !cm.history.Contains(text) {
 			cm.appendToHistory(text)
 		}
 	} else {
@@ -66,11 +66,13 @@ func (cm *ClipboardManager) paste(idx int) error {
 		return fmt.Errorf("clipboard IO not initialized")
 	}
 
+	newest := false
 	if idx < 0 {
-		idx = cm.history.Newest()
+		idx = cm.history.NewestIndex()
+		newest = true
 	}
 
-	item, err := cm.retrieveItem(idx)
+	item, err := cm.retrieveItem(idx, newest)
 	if err != nil {
 		return err
 	}	
@@ -82,12 +84,12 @@ func (cm *ClipboardManager) paste(idx int) error {
 	return nil
 }
 
-func (cm *ClipboardManager) retrieveItem(idx int) (persistence.Item, error) {
+func (cm *ClipboardManager) retrieveItem(idx int, newest bool) (persistence.Item, error) {
 	var item persistence.Item
 	var found bool
 
-	if idx == cm.history.Newest() {
-		item, found = cm.history.GetNewest()
+	if newest {
+		item, found = cm.history.Newest()
 	} else {
 		item, found = cm.history.GetPos(idx)
 	}

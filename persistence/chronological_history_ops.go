@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-func newHistory(capacity int, maxBytes int, maxItemBytes int) *ClipboardHistory {
-	return &ClipboardHistory{
+func newChronologicalHistory(capacity int, maxBytes int, maxItemBytes int) *ChronologicalHistory {
+	return &ChronologicalHistory{
 		buf:          make([]Item, capacity),
 		capacity:     capacity,
 		maxBytes:     maxBytes,
@@ -14,15 +14,13 @@ func newHistory(capacity int, maxBytes int, maxItemBytes int) *ClipboardHistory 
 	}
 }
 
-func (ch *ClipboardHistory) Newest() int {
-	// Subtract to prevent off by one errors
-	// Append increases count so we must decrement to get newest
+func (ch *ChronologicalHistory) NewestIndex() int {
 	idx := (ch.head + ch.count - 1) % ch.capacity
 	return idx
 }
 
 // TODO: Consider altering this to a small scale scan (last 50 items)?
-func (ch *ClipboardHistory) Contains(text string) bool {
+func (ch *ChronologicalHistory) Contains(text string) bool {
 	for _, item := range ch.buf {
 		if string(item.Data) == text {
 			return true
@@ -31,7 +29,7 @@ func (ch *ClipboardHistory) Contains(text string) bool {
 	return false
 }
 
-func (ch *ClipboardHistory) Append(data []byte) {
+func (ch *ChronologicalHistory) Append(data []byte) {
 	if len(data) > ch.maxItemBytes {
 		data = data[:ch.maxItemBytes]
 	}
@@ -51,7 +49,7 @@ func (ch *ClipboardHistory) Append(data []byte) {
 	ch.currBytes += len(data)
 }
 
-func (ch *ClipboardHistory) evictOldest() {
+func (ch *ChronologicalHistory) evictOldest() {
 	old := &ch.buf[ch.head]
 	ch.currBytes -= len(old.Data)
 	*old = Item{}
@@ -59,8 +57,8 @@ func (ch *ClipboardHistory) evictOldest() {
 	ch.count--
 }
 
-func (ch *ClipboardHistory) GetNewest() (Item, bool) {
-	fmt.Println("GetNewest Called.")
+func (ch *ChronologicalHistory) Newest() (Item, bool) {
+	fmt.Println("ChronologicalHistory::Newest Called.")
 	ch.mu.RLock()
 	defer ch.mu.RUnlock()
 
@@ -75,8 +73,8 @@ func (ch *ClipboardHistory) GetNewest() (Item, bool) {
 	}, true
 }
 
-func (ch *ClipboardHistory) GetPos(idx int) (Item, bool) {
-	fmt.Println("GetPos Called.")
+func (ch *ChronologicalHistory) GetPos(idx int) (Item, bool) {
+	fmt.Println("ChronologicalHistory::GetPos Called.")
 	ch.mu.RLock()
 	defer ch.mu.RUnlock()
 
@@ -84,9 +82,18 @@ func (ch *ClipboardHistory) GetPos(idx int) (Item, bool) {
 		return Item{}, false
 	}
 
+	ch.List()
 	it := ch.buf[idx]
 	return Item{
 		Data:      append([]byte(nil), it.Data...),
 		CreatedAt: it.CreatedAt,
 	}, true
+}
+
+func (ch *ChronologicalHistory) List() {
+	fmt.Println("ChronologicalHistory::List Called.")
+	for idx, item := range ch.buf {
+		fmt.Printf("Item: %v, Index: %v ", string(item.Data), idx)
+	}
+	fmt.Println()
 }

@@ -6,13 +6,17 @@ import (
 )
 
 var (
-	instance *ClipboardHistory
+	instance ClipboardHistory
 	once     sync.Once
 )
 
-func GetHistory(capacity int, maxItemBytes int, maxBytes int) *ClipboardHistory {
+func GetHistory(chronological bool, capacity int, maxItemBytes int, maxBytes int) ClipboardHistory {
 	once.Do(func() {
-		instance = newHistory(capacity, maxBytes, maxItemBytes)
+		if chronological {
+			instance = newChronologicalHistory(capacity, maxBytes, maxItemBytes)
+		} else {
+			instance = newRecentFirstHistory(capacity, maxBytes, maxItemBytes)
+		}
 		fmt.Println("Store instance created.")
 	})
 	return instance
