@@ -81,13 +81,10 @@ func (cm *ClipboardManager) paste(idx int) error {
     }
 
     text := string(item.Data)
-    err := cm.clipIO.Paste(text)
+    cm.clipIO.Paste(text)
 
     fmt.Println("Pasted: ", text)
-    if err != nil {
-        cm.log.Error(err.Error())
-    }
-    return err
+    return nil 
 }
 
 func (cm *ClipboardManager) Run() error {
