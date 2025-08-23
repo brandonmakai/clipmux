@@ -38,7 +38,7 @@ func (cm *ClipboardManager) get() error {
 		return err
 	}
 
-	if text != cm.lastText || !cm.history.Contains(text) {
+	if text != cm.lastText && !cm.history.Contains(text) {
 		fmt.Println("Appending Text: ", text)
 		text_bytes := []byte(text)
 		cm.history.Append(text_bytes)
@@ -52,43 +52,35 @@ func (cm *ClipboardManager) get() error {
 }
 
 func (cm *ClipboardManager) paste(idx int) error {
-		var item persistence.Item
-		if cm.history == nil {
-        fmt.Println("cm.history is nil!")
-        return fmt.Errorf("clipboard history not initialized")
-    }
-    if cm.clipIO == nil {
-        fmt.Println("cm.clipIO is nil!")
-        return fmt.Errorf("clipboard IO not initialized")
-    }
-		
-		if idx == cm.history.Newest() {
-			var found = false
-			item, found = cm.history.GetNewest()
+	if cm.history == nil {
+		return fmt.Errorf("clipboard history not initialized")
+	}
+	if cm.clipIO == nil {
+		return fmt.Errorf("clipboard IO not initialized")
+	}
 
-			if !found {
-        cm.log.Info("No items found in clipmux history.")
-        return nil
-	    }
-		} else {
-			var found = false 
-			item, found = cm.history.GetPos(idx)
+	var item persistence.Item
+	var found bool
 
-			if !found {
-				cm.log.Info(fmt.Sprintf("Item not found at index: %v", idx))
-			}
+	if idx == cm.history.Newest() {
+		item, found = cm.history.GetNewest()
+		if !found {
+			cm.log.Info("No items found in clipmux history.")
+			return nil
 		}
+	} else {
+		item, found = cm.history.GetPos(idx)
+		if !found || item.Data == nil {
+			cm.log.Info(fmt.Sprintf("Item not found at index: %v", idx))
+			return nil
+		}
+	}
 
-    if item.Data == nil {
-        fmt.Println("item.Data is nil!")
-        return fmt.Errorf("clipboard item is nil")
-    }
+	text := string(item.Data)
+	cm.clipIO.Paste(text)
 
-    text := string(item.Data)
-    cm.clipIO.Paste(text)
-
-    fmt.Println("Pasted: ", text)
-    return nil 
+	fmt.Println("Pasted:", text)
+	return nil
 }
 
 func (cm *ClipboardManager) Run() error {
