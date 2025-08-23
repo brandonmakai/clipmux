@@ -11,7 +11,7 @@ import (
 )
 
 // TODO: Make these a config option
-var pasteHotkeyBase = []string{"q", "ctrl"}
+var pasteHotkeyBase = []string{"ctrl", "shift", "h"}
 const maxHotkeys = 10
 const linearHistory = true
 
