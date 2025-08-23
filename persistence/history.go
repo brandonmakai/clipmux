@@ -5,15 +5,35 @@ import (
 	"time"
 )
 
-type ClipboardHistory struct {
+type ClipboardHistory interface {
+	NewestIndex() int
+	Contains(text string) bool
+	Append(data []byte)
+	Newest() (Item, bool)
+	GetPos(idx int) (Item, bool)
+	List()
+}
+
+type ChronologicalHistory struct {
 	mu           sync.RWMutex
 	buf          []Item
-	head         int // index of head of store
+	head         int
 	count        int
 	capacity     int
-	maxBytes     int // max byte size of store
-	maxItemBytes int // max per item byte size
-	currBytes    int // current amount of bytes in store
+	maxBytes     int 
+	maxItemBytes int 
+	currBytes    int
+}
+
+type RecentFirstHistory struct {
+	mu           sync.RWMutex
+	buf          []Item
+	head         int 
+	count        int
+	capacity     int
+	maxBytes     int 
+	maxItemBytes int 
+	currBytes    int
 }
 
 type Item struct {

@@ -8,9 +8,10 @@ import (
 // TODO: Change this to be a param in CLI
 const capacity, maxItemBytes = 10, 1500
 const maxBytes = capacity * maxItemBytes
+const chronologicalHistory = false
 
 func main() {
-	logger, history := bootstrap.BootStrap(capacity, maxItemBytes, maxBytes)
+	logger, history := bootstrap.BootStrap(capacity, maxItemBytes, maxBytes, chronologicalHistory)
 
 	clipRobot := internal.RobotGo{}
 	// Change this to be customizeable path
