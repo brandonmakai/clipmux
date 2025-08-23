@@ -11,7 +11,7 @@ import (
 )
 
 // TODO: Make these a config option
-const pasteHotkeyBase = "q"
+var pasteHotkeyBase = []string{"q", "ctrl"}
 const maxHotkeys = 10
 const linearHistory = true
 
@@ -105,7 +105,7 @@ func (cm *ClipboardManager) Run() error {
 	
 	for i := 0; i < maxHotkeys; i++ {
 	  pos := i // shadow the loop variable to prevent callback from only getting final value
-		hotkey := append([]string{pasteHotkeyBase, "ctrl"}, strconv.Itoa(pos))
+		hotkey := append(pasteHotkeyBase, strconv.Itoa(pos))
 
 		hook.Register(hook.KeyDown, hotkey, func(e hook.Event) {
 			fmt.Println("Callback started for hotkey index: ", pos) // NEW
