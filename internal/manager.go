@@ -10,13 +10,16 @@ import (
 	hook "github.com/robotn/gohook"
 )
 
-var lastText string
-var pasteHotkey = []string{"q", "ctrl"}
+// TODO: Make these a config option
+const pasteHotkeyBase = "q"
+const maxHotkeys = 10
+const linearHistory = true
 
 type ClipboardManager struct {
 	clipIO  ReadPaster
 	history *persistence.ClipboardHistory
 	log     *logger.Logger
+	lastText string
 }
 
 func NewClipboardManager(io ReadPaster, history *persistence.ClipboardHistory, log *logger.Logger) *ClipboardManager {
@@ -24,6 +27,7 @@ func NewClipboardManager(io ReadPaster, history *persistence.ClipboardHistory, l
 		clipIO:  io,
 		history: history,
 		log:     log,
+		lastText: "",
 	}
 }
 
@@ -34,14 +38,14 @@ func (cm *ClipboardManager) get() error {
 		return err
 	}
 
-	if text != lastText || !cm.history.Contains(text) {
+	if text != cm.lastText || !cm.history.Contains(text) {
 		fmt.Println("Appending Text: ", text)
 		text_bytes := []byte(text)
 		cm.history.Append(text_bytes)
 
 		msg := fmt.Sprintf("Added new item to history: %s\n", text)
 		cm.log.Info(msg)
-		lastText = text
+		cm.lastText = text
 	}
 
 	return nil
@@ -90,9 +94,9 @@ func (cm *ClipboardManager) paste(idx int) error {
 func (cm *ClipboardManager) Run() error {
 	errCh := make(chan error)
 	
-	for pos := range 10 {
-		hotkey := append([]string(nil), pasteHotkey...)
-		hotkey = append(hotkey, strconv.Itoa(pos))
+	for i := 0; i < maxHotkeys; i++ {
+	  pos := i // shadow the loop variable to prevent callback from only getting final value
+		hotkey := append([]string{pasteHotkeyBase, "ctrl"}, strconv.Itoa(pos))
 
 		hook.Register(hook.KeyDown, hotkey, func(e hook.Event) {
 			fmt.Println("Callback started for hotkey index: ", pos) // NEW
