@@ -66,28 +66,38 @@ func (cm *ClipboardManager) paste(idx int) error {
 		return fmt.Errorf("clipboard IO not initialized")
 	}
 
-	var item persistence.Item
-	var found bool
-
-	if idx == cm.history.Newest() {
-		item, found = cm.history.GetNewest()
-		if !found {
-			cm.log.Info("No items found in clipmux history.")
-			return nil
-		}
-	} else {
-		item, found = cm.history.GetPos(idx)
-		if !found || item.Data == nil {
-			cm.log.Info(fmt.Sprintf("Item not found at index: %v", idx))
-			return nil
-		}
+	if idx < 0 {
+		idx = cm.history.Newest()
 	}
+
+	item, err := cm.retrieveItem(idx)
+	if err != nil {
+		return err
+	}	
 
 	text := string(item.Data)
 	cm.clipIO.Paste(text)
 
 	fmt.Println("Pasted:", text)
 	return nil
+}
+
+func (cm *ClipboardManager) retrieveItem(idx int) (persistence.Item, error) {
+	var item persistence.Item
+	var found bool
+
+	if idx == cm.history.Newest() {
+		item, found = cm.history.GetNewest()
+	} else {
+		item, found = cm.history.GetPos(idx)
+	}
+
+	if !found || item.Data == nil {
+		cm.log.Info(fmt.Sprintf("Item not found at index: %v", idx))
+		return persistence.Item{}, fmt.Errorf("no item found at index %v", idx)
+	}
+
+	return item, nil
 }
 
 func (cm *ClipboardManager) Run() error {
@@ -110,8 +120,8 @@ func (cm *ClipboardManager) Run() error {
 	}
 
 	go func() {
-		s := hook.Start()
-		<- hook.Process(s)
+		evChan := hook.Start()
+		<- hook.Process(evChan)
 	}()
 	
 	for {
