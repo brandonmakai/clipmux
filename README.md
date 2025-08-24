@@ -5,7 +5,7 @@ Access your clipboard history via global hotkeys, just like tmux for your clipbo
 
 ## Planned Features
 * Tracks the last N clipboard entries (default: 10). ✅
-* Access items directly via numeric hotkeys (Ctrl+Alt+1 → first item, Ctrl+Alt+2 → second item).
+* Access items directly via numeric hotkeys (Ctrl+Alt+1 → first item, Ctrl+Alt+2 → second item). ✅
 * Deduplicates clipboard entries automatically. ✅
 * Persists clipboard history across sessions.
 * Minimal design – no menus or distractions, just direct clipboard access.
@@ -17,9 +17,9 @@ Run ClipMux
 The program will run in the background, listening for clipboard changes and global hotkeys.
 
 ### Hotkeys
-* Ctrl+Alt+1 → Paste first clipboard item
-* Ctrl+Alt+2 → Paste second clipboard item
-* Ctrl+Alt+N → Paste N-th clipboard item
+* Ctrl+Shift+H+0 → Paste first clipboard item
+* Ctrl+Shift+H+1 → Paste second clipboard item
+* Ctrl+Shift+H+N → Paste N-th clipboard item
 
 ### Configuration
 History size, hotkeys, and persistence path will be configurable in future releases.
@@ -35,7 +35,7 @@ ClipMux is open source and welcomes contributions!
 5. Open a Pull Request
 
 ### Roadmap
-1. MVP: Clipboard history tracking + hotkeys (WOP) 
+1. MVP: Clipboard history tracking + hotkeys ✅
 2. Customer Bindings 
 3. Terminal CLI Commands
 4. Cross-platform support and testing
