@@ -1,11 +1,9 @@
 package logger
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
-	"time"
 )
 
 var (
@@ -14,20 +12,19 @@ var (
 )
 
 // TODO: Add daily rotation of logs
-func GetLogger(path string) *Logger {
+func GetLogger(path string, debug bool) *Logger {
 	once.Do(func() {
-		logger_path := fmt.Sprintf("%s/logs/%s.log", path, time.Now().Format("2006-01-02"))
-		if err := os.MkdirAll(filepath.Dir(logger_path), 0755); err != nil {
+		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 			panic(err)
 		}
 
-		f, err := os.OpenFile(logger_path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+		f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 		if err != nil {
 			panic(err)
 		}
 
-		instance = newLogger(f)
-		fmt.Println("Logger instance created.")
+		instance = newLogger(f, debug)
+		instance.Info("Logger instance created.")
 	})
 	return instance
 }
