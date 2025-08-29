@@ -108,7 +108,7 @@ func (cm *ClipboardManager) Run() error {
 	
 	for i := 0; i < maxHotkeys; i++ {
 	  pos := i // shadow the loop variable to prevent callback from only getting final value
-		hotkey := append(cm.cfg.PasteHotkeysBase, strconv.Itoa(pos))
+		hotkey := append(cm.hotkeyBase(), strconv.Itoa(pos))
 
 		hook.Register(hook.KeyDown, hotkey, func(e hook.Event) {
 			fmt.Println("Callback started for hotkey index: ", pos) 
@@ -139,4 +139,12 @@ func (cm *ClipboardManager) Run() error {
 		}
 	}
 
+}
+
+func (cm ClipboardManager) hotkeyBase() []string {
+	defaultBase := []string{"ctrl", "shift", "h"}
+	if cm.cfg.PasteHotkeysBase == nil {
+		return defaultBase 
+	}
+	return cm.cfg.PasteHotkeysBase
 }

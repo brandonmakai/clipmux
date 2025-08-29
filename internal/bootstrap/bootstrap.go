@@ -4,7 +4,6 @@ import (
 	"os"
 	"time"
 	"path/filepath"
-	"fmt"
 
 	"github.com/brandonmakai/clipmux/internal/logger"
 	"github.com/brandonmakai/clipmux/internal/config"
@@ -67,7 +66,5 @@ func initHistory(cfg *config.Config, log *logger.Logger) persistence.ClipboardHi
 	}
 
 	newestFirst := cfg.NewestFirst
-	fmt.Println("Newest First: ", newestFirst)
-
 	return persistence.GetHistory(newestFirst, capacity, itemBytes, log) 
 }
