@@ -3,42 +3,71 @@ package bootstrap
 import (
 	"os"
 	"time"
-	"fmt"
 	"path/filepath"
+	"fmt"
 
 	"github.com/brandonmakai/clipmux/internal/logger"
+	"github.com/brandonmakai/clipmux/internal/config"
 	"github.com/brandonmakai/clipmux/persistence"
 )
 
-const clipMux string = "clipmux"
+const clipMux = ".clipmux"
+const cfgFile = "config.toml"
 
-func GetPath() string {
+// GetAppDir returns the root application directory for clipmux.
+func GetAppDir() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		panic(err)
+		panic("failed to get user home directory: " + err.Error())
 	}
-	clipmuxPath := filepath.Join(home, clipMux)
-
-	return clipmuxPath
+	return filepath.Join(home, clipMux)
 }
 
-func BootStrap(capacity int, maxItemBytes int, maxBytes int, chronologicalHistory bool, loggerPath string, debug bool) (*logger.Logger, persistence.ClipboardHistory) {
-	if err := os.MkdirAll(GetPath(), 0755); err != nil {
-		panic(err)
+func BootStrap() (*logger.Logger, persistence.ClipboardHistory, *config.Config) {
+	appDir := GetAppDir()
+	if err := os.MkdirAll(appDir, 0755); err != nil {
+		panic("failed to create application directory: " + err.Error())
 	}
 	
-	logger := initLogger(loggerPath, debug)
-	history := persistence.GetHistory(chronologicalHistory, capacity, maxItemBytes, maxBytes)
+	cfg := config.GetConfig(filepath.Join(appDir, cfgFile))
+	
+	log := initLogger(cfg)
+	history := initHistory(cfg, log) 
 
-	return logger, history
+	return log, history, cfg
 }
 
-func initLogger(path string, debug bool) *logger.Logger {
-	if path == "" { 
-		path = fmt.Sprintf("%s/logs/%s.log", GetPath(), time.Now().Format("2006-01-02"))
-	} else { 
-		path = fmt.Sprintf("%s%s.log", path, time.Now().Format("2006-01-02"))
+// initLogger determines the log path, ensures the directory exists, and returns a new logger.
+func initLogger(cfg *config.Config) *logger.Logger {
+	logDir := cfg.LoggerDir
+	if logDir == "" {
+		// If no custom log directory is set in config, use the default.
+		logDir = filepath.Join(GetAppDir(), "logs")
 	}
-	return logger.GetLogger(path, debug) 
 
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		panic("failed to create log directory: " + err.Error())
+	}
+	logFile := filepath.Join(logDir, time.Now().Format("2006-01-02")+".log")
+
+	debug := cfg.Debug	
+	return logger.GetLogger(logFile, debug) 
+}
+
+// initHistory determines capacity and maxItemBytes, provides defaults, and returns new history
+func initHistory(cfg *config.Config, log *logger.Logger) persistence.ClipboardHistory {
+	capacity := cfg.Capacity
+	if capacity == 0 {
+		capacity = 10
+	}
+
+	itemBytes := cfg.MaxItemBytes 
+	if itemBytes == 0 {
+		itemBytes = 2048
+	}
+
+	newestFirst := cfg.NewestFirst
+	fmt.Println("Newest First: ", newestFirst)
+
+	return persistence.GetHistory(newestFirst, capacity, itemBytes, log) 
 }
