@@ -1,8 +1,9 @@
 package persistence
 
 import (
-	"fmt"
 	"sync"
+
+	"github.com/brandonmakai/clipmux/internal/logger"
 )
 
 var (
@@ -10,14 +11,15 @@ var (
 	once     sync.Once
 )
 
-func GetHistory(chronological bool, capacity int, maxItemBytes int, maxBytes int) ClipboardHistory {
+func GetHistory(newestFirst bool, capacity int, maxItemBytes int, logger *logger.Logger) ClipboardHistory {
+	maxBytes := capacity * maxItemBytes
 	once.Do(func() {
-		if chronological {
-			instance = newChronologicalHistory(capacity, maxBytes, maxItemBytes)
-		} else {
+		if newestFirst {
 			instance = newRecentFirstHistory(capacity, maxBytes, maxItemBytes)
+		} else {
+			instance = newChronologicalHistory(capacity, maxBytes, maxItemBytes)
 		}
-		fmt.Println("Store instance created.")
+		logger.Info("Store instance created.")
 	})
 	return instance
 }
