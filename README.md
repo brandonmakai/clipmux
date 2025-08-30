@@ -22,9 +22,7 @@ The program will run in the background, listening for clipboard changes and glob
 * Ctrl+Shift+H+N → Paste N-th clipboard item
 
 ### Configuration
-History size, hotkeys, and persistence path will be configurable in future releases.
-
-Currently uses JSON file in $HOME/.clipmux/history.json to store clipboard history.
+History size, hotkeys, logger path, and more are configurable.
 
 ### Contributing
 ClipMux is open source and welcomes contributions!
@@ -36,7 +34,7 @@ ClipMux is open source and welcomes contributions!
 
 ### Roadmap
 1. MVP: Clipboard history tracking + hotkeys ✅
-2. Customer Bindings 
+2. Custom Bindings ✅
 3. Terminal CLI Commands
 4. Cross-platform support and testing
 5. Optional encryption for sensitive clipboard items
