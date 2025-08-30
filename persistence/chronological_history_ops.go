@@ -1,8 +1,8 @@
 package persistence
 
 import (
-	"time"
 	"fmt"
+	"time"
 )
 
 func newChronologicalHistory(capacity int, maxBytes int, maxItemBytes int) *ChronologicalHistory {

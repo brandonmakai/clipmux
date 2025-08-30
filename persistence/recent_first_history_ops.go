@@ -1,8 +1,8 @@
 package persistence
 
 import (
-	"time"
 	"fmt"
+	"time"
 )
 
 func newRecentFirstHistory(capacity int, maxBytes int, maxItemBytes int) *RecentFirstHistory {
@@ -17,7 +17,7 @@ func newRecentFirstHistory(capacity int, maxBytes int, maxItemBytes int) *Recent
 // logicalToPhysical maps a logical history index (0 = newest, count-1 = oldest)
 // into the actual physical index inside the circular buffer.
 func (rh *RecentFirstHistory) logicalToPhysical(i int) int {
-    return (rh.head + rh.count - 1 - i + rh.capacity) % rh.capacity
+	return (rh.head + rh.count - 1 - i + rh.capacity) % rh.capacity
 }
 
 func (rh *RecentFirstHistory) NewestIndex() int {

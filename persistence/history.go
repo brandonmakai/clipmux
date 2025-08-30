@@ -20,19 +20,19 @@ type ChronologicalHistory struct {
 	head         int
 	count        int
 	capacity     int
-	maxBytes     int 
-	maxItemBytes int 
+	maxBytes     int
+	maxItemBytes int
 	currBytes    int
 }
 
 type RecentFirstHistory struct {
 	mu           sync.RWMutex
 	buf          []Item
-	head         int 
+	head         int
 	count        int
 	capacity     int
-	maxBytes     int 
-	maxItemBytes int 
+	maxBytes     int
+	maxItemBytes int
 	currBytes    int
 }
 
