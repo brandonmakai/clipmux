@@ -7,7 +7,7 @@ import (
 
 func main() {
 	logger, history, cfg := bootstrap.BootStrap()
-	
+
 	clipRobot := internal.RobotGo{}
 	cm := internal.NewClipboardManager(clipRobot, history, logger, cfg)
 

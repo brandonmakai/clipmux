@@ -2,11 +2,11 @@ package internal
 
 import (
 	"fmt"
-	"time"
 	"strconv"
+	"time"
 
-	"github.com/brandonmakai/clipmux/internal/logger"
 	"github.com/brandonmakai/clipmux/internal/config"
+	"github.com/brandonmakai/clipmux/internal/logger"
 	"github.com/brandonmakai/clipmux/persistence"
 	hook "github.com/robotn/gohook"
 )
@@ -15,19 +15,19 @@ import (
 const maxHotkeys = 10
 
 type ClipboardManager struct {
-	clipIO  ReadPaster
-	history persistence.ClipboardHistory
-	log     *logger.Logger
-	cfg			*config.Config 
+	clipIO   ReadPaster
+	history  persistence.ClipboardHistory
+	log      *logger.Logger
+	cfg      *config.Config
 	lastText string
 }
 
 func NewClipboardManager(io ReadPaster, history persistence.ClipboardHistory, log *logger.Logger, cfg *config.Config) *ClipboardManager {
 	return &ClipboardManager{
-		clipIO:  io,
-		history: history,
-		log:     log,
-		cfg: 		 cfg,
+		clipIO:   io,
+		history:  history,
+		log:      log,
+		cfg:      cfg,
 		lastText: "",
 	}
 }
@@ -76,7 +76,7 @@ func (cm *ClipboardManager) paste(idx int) error {
 	item, err := cm.retrieveItem(idx, newest)
 	if err != nil {
 		return err
-	}	
+	}
 
 	text := string(item.Data)
 	cm.clipIO.Paste(text)
@@ -105,16 +105,16 @@ func (cm *ClipboardManager) retrieveItem(idx int, newest bool) (persistence.Item
 
 func (cm *ClipboardManager) Run() error {
 	errCh := make(chan error)
-	
+
 	for i := 0; i < maxHotkeys; i++ {
-	  pos := i // shadow the loop variable to prevent callback from only getting final value
+		pos := i // shadow the loop variable to prevent callback from only getting final value
 		hotkey := append(cm.hotkeyBase(), strconv.Itoa(pos))
 
 		hook.Register(hook.KeyDown, hotkey, func(e hook.Event) {
-			fmt.Println("Callback started for hotkey index: ", pos) 
+			fmt.Println("Callback started for hotkey index: ", pos)
 			fmt.Println("Hotkey pressed")
 			if err := cm.paste(pos); err != nil {
-				select { 
+				select {
 				case errCh <- err:
 				default:
 				}
@@ -124,12 +124,12 @@ func (cm *ClipboardManager) Run() error {
 
 	go func() {
 		evChan := hook.Start()
-		<- hook.Process(evChan)
+		<-hook.Process(evChan)
 	}()
-	
+
 	for {
 		select {
-		case err := <- errCh:
+		case err := <-errCh:
 			return err
 		default:
 			if err := cm.get(cm.cfg.AllowDuplicates); err != nil {
@@ -144,7 +144,7 @@ func (cm *ClipboardManager) Run() error {
 func (cm ClipboardManager) hotkeyBase() []string {
 	defaultBase := []string{"ctrl", "shift", "h"}
 	if cm.cfg.PasteHotkeysBase == nil {
-		return defaultBase 
+		return defaultBase
 	}
 	return cm.cfg.PasteHotkeysBase
 }

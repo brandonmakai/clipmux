@@ -2,11 +2,11 @@ package bootstrap
 
 import (
 	"os"
-	"time"
 	"path/filepath"
+	"time"
 
-	"github.com/brandonmakai/clipmux/internal/logger"
 	"github.com/brandonmakai/clipmux/internal/config"
+	"github.com/brandonmakai/clipmux/internal/logger"
 	"github.com/brandonmakai/clipmux/persistence"
 )
 
@@ -27,11 +27,11 @@ func BootStrap() (*logger.Logger, persistence.ClipboardHistory, *config.Config) 
 	if err := os.MkdirAll(appDir, 0755); err != nil {
 		panic("failed to create application directory: " + err.Error())
 	}
-	
+
 	cfg := config.GetConfig(filepath.Join(appDir, cfgFile))
-	
+
 	log := initLogger(cfg)
-	history := initHistory(cfg, log) 
+	history := initHistory(cfg, log)
 
 	return log, history, cfg
 }
@@ -49,8 +49,8 @@ func initLogger(cfg *config.Config) *logger.Logger {
 	}
 	logFile := filepath.Join(logDir, time.Now().Format("2006-01-02")+".log")
 
-	debug := cfg.Debug	
-	return logger.GetLogger(logFile, debug) 
+	debug := cfg.Debug
+	return logger.GetLogger(logFile, debug)
 }
 
 // initHistory determines capacity and maxItemBytes, provides defaults, and returns new history
@@ -60,11 +60,11 @@ func initHistory(cfg *config.Config, log *logger.Logger) persistence.ClipboardHi
 		capacity = 10
 	}
 
-	itemBytes := cfg.MaxItemBytes 
+	itemBytes := cfg.MaxItemBytes
 	if itemBytes == 0 {
 		itemBytes = 2048
 	}
 
 	newestFirst := cfg.NewestFirst
-	return persistence.GetHistory(newestFirst, capacity, itemBytes, log) 
+	return persistence.GetHistory(newestFirst, capacity, itemBytes, log)
 }
