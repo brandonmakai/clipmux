@@ -12,6 +12,8 @@ import (
 
 const clipMux = ".clipmux"
 const cfgFile = "config.toml"
+const defaultCapacity = 10
+const defaultItemBytes = 2048
 
 // GetAppDir returns the root application directory for clipmux.
 func GetAppDir() string {
@@ -57,12 +59,12 @@ func initLogger(cfg *config.Config) *logger.Logger {
 func initHistory(cfg *config.Config, log *logger.Logger) persistence.ClipboardHistory {
 	capacity := cfg.Capacity
 	if capacity == 0 {
-		capacity = 10
+		capacity = defaultCapacity 
 	}
 
 	itemBytes := cfg.MaxItemBytes
 	if itemBytes == 0 {
-		itemBytes = 2048
+		itemBytes = defaultItemBytes
 	}
 
 	newestFirst := cfg.NewestFirst
