@@ -59,13 +59,13 @@ func (l *Logger) rotateIfNeeded() error {
 	newFile := today + ext
 	newFile = filepath.Join(dir, newFile)
 
-	if err := l.enforceRetention(); err != nil {
-		panic(err)
-	}
-
 	f, err := os.OpenFile(newFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
+	}
+
+	if err := l.enforceRetention(); err != nil {
+		panic(err)
 	}
 
 	l.file = f
