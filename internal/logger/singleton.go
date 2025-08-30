@@ -11,7 +11,6 @@ var (
 	once     sync.Once
 )
 
-// TODO: Add daily rotation of logs
 func GetLogger(path string, debug bool) *Logger {
 	once.Do(func() {
 		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {

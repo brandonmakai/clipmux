@@ -24,7 +24,7 @@ func (rh *RecentFirstHistory) NewestIndex() int {
 	return rh.logicalToPhysical(0)
 }
 
-// TODO: Consider altering this to a small scale scan (last 50 items)?
+// TODO: (Issue #3) Optimize Clipboard Contains Function
 func (rh *RecentFirstHistory) Contains(text string) bool {
 	for _, item := range rh.buf {
 		if string(item.Data) == text {

@@ -11,7 +11,7 @@ import (
 	hook "github.com/robotn/gohook"
 )
 
-// TODO: Explore possibility making this configurable
+// TODO: (Issue #2) Enhance Hotkey Configuration 
 const maxHotkeys = 10
 
 type ClipboardManager struct {

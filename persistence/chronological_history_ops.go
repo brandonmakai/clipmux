@@ -19,7 +19,7 @@ func (ch *ChronologicalHistory) NewestIndex() int {
 	return idx
 }
 
-// TODO: Consider altering this to a small scale scan (last 50 items)?
+// TODO: (Issue #3) Optimize Clipboard Contains Function
 func (ch *ChronologicalHistory) Contains(text string) bool {
 	for _, item := range ch.buf {
 		if string(item.Data) == text {
