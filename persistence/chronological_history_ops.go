@@ -58,7 +58,6 @@ func (ch *ChronologicalHistory) evictOldest() {
 }
 
 func (ch *ChronologicalHistory) Newest() (Item, bool) {
-	fmt.Println("ChronologicalHistory::Newest Called.")
 	ch.mu.RLock()
 	defer ch.mu.RUnlock()
 
@@ -74,7 +73,6 @@ func (ch *ChronologicalHistory) Newest() (Item, bool) {
 }
 
 func (ch *ChronologicalHistory) GetPos(idx int) (Item, bool) {
-	fmt.Println("ChronologicalHistory::GetPos Called.")
 	ch.mu.RLock()
 	defer ch.mu.RUnlock()
 
@@ -82,7 +80,6 @@ func (ch *ChronologicalHistory) GetPos(idx int) (Item, bool) {
 		return Item{}, false
 	}
 
-	ch.List()
 	it := ch.buf[idx]
 	return Item{
 		Data:      append([]byte(nil), it.Data...),
@@ -91,7 +88,6 @@ func (ch *ChronologicalHistory) GetPos(idx int) (Item, bool) {
 }
 
 func (ch *ChronologicalHistory) List() {
-	fmt.Println("ChronologicalHistory::List Called.")
 	for idx, item := range ch.buf {
 		fmt.Printf("Item: %v, Index: %v ", string(item.Data), idx)
 	}

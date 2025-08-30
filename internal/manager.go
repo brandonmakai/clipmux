@@ -53,7 +53,6 @@ func (cm *ClipboardManager) get(allowDuplicates bool) error {
 }
 
 func (cm *ClipboardManager) appendToHistory(text string) {
-	fmt.Println("Appending Text: ", text)
 	cm.history.Append([]byte(text))
 	cm.log.Info(fmt.Sprintf("Added new item to history: %s\n", text))
 	cm.lastText = text
@@ -81,7 +80,6 @@ func (cm *ClipboardManager) paste(idx int) error {
 	text := string(item.Data)
 	cm.clipIO.Paste(text)
 
-	fmt.Println("Pasted:", text)
 	return nil
 }
 
@@ -111,8 +109,6 @@ func (cm *ClipboardManager) Run() error {
 		hotkey := append(cm.hotkeyBase(), strconv.Itoa(pos))
 
 		hook.Register(hook.KeyDown, hotkey, func(e hook.Event) {
-			fmt.Println("Callback started for hotkey index: ", pos)
-			fmt.Println("Hotkey pressed")
 			if err := cm.paste(pos); err != nil {
 				select {
 				case errCh <- err:

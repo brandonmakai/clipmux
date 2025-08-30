@@ -63,7 +63,6 @@ func (rh *RecentFirstHistory) evictOldest() {
 }
 
 func (rh *RecentFirstHistory) Newest() (Item, bool) {
-	fmt.Println("RecentFirstHistory::Newest Called.")
 	rh.mu.RLock()
 	defer rh.mu.RUnlock()
 
@@ -78,7 +77,6 @@ func (rh *RecentFirstHistory) Newest() (Item, bool) {
 }
 
 func (rh *RecentFirstHistory) GetPos(idx int) (Item, bool) {
-	fmt.Println("RecentFirstHistory::GetPos Called.")
 	rh.mu.RLock()
 	defer rh.mu.RUnlock()
 
@@ -86,7 +84,6 @@ func (rh *RecentFirstHistory) GetPos(idx int) (Item, bool) {
 		return Item{}, false
 	}
 
-	rh.List()
 	it := rh.buf[rh.logicalToPhysical(idx)]
 	return Item{
 		Data:      append([]byte(nil), it.Data...),
@@ -95,7 +92,6 @@ func (rh *RecentFirstHistory) GetPos(idx int) (Item, bool) {
 }
 
 func (rh *RecentFirstHistory) List() {
-	fmt.Println("RecentFirstHistory::List Called.")
 	for idx, item := range rh.buf {
 		fmt.Printf("Item: %v, Index: %v ", string(item.Data), idx)
 	}
