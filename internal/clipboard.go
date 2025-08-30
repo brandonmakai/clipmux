@@ -2,7 +2,9 @@ package internal
 
 import (
 	"github.com/go-vgo/robotgo"
+
 	"time"
+	"runtime"
 )
 
 type ReadPaster interface {
@@ -28,7 +30,15 @@ func (r RobotGo) Read() (string, error) {
 func (r RobotGo) Paste(text string) {
 	 robotgo.WriteAll(text)
 	 time.Sleep(50 * time.Millisecond)
-	 // TODO: Add OS specific "ctrl" for Linux/Windows
-	 robotgo.KeyTap("v", "cmd")
+
+	 // TODO: (Issue #1) Refactor Clipboard To Use OS-level Paste 
+	 pasteKeys := []string{}
+	 switch runtime.GOOS {
+ 	 case "darwin":
+		pasteKeys = append(pasteKeys, "v", "cmd")
+	 default: 
+	 	pasteKeys = append(pasteKeys, "v", "ctrl")
+	 }
+	 robotgo.KeyTap(pasteKeys[0], pasteKeys[1])
 }
 
