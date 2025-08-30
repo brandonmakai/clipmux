@@ -4,13 +4,48 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"time"
 )
+
+const maxFiles = 3
 
 func newLogger(file *os.File, toStdout bool) *Logger {
 	return &Logger{file: file, toStdout: toStdout}
 }
 
+// enforceRetention removes outdated files in the logger directory if there is more than maxFiles entries 
+func (l *Logger) enforceRetention() error {
+	dir := filepath.Dir(l.file.Name())
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return err
+	}
+
+	var names []string
+	for _, e := range entries {
+		entryName := e.Name()
+		if !e.IsDir() && filepath.Ext(entryName) == ".log" {
+			names = append(names, entryName)
+		}
+	}
+
+	if len(names) <= maxFiles {
+		return nil
+	}
+	
+	sort.Strings(names)
+	
+	for i := 0; i <= maxFiles; i++ {
+		if err := os.Remove(filepath.Join(dir, names[i])); err != nil {
+			return fmt.Errorf("remove %q: %w", names[i], err)
+		}
+	}
+
+	return nil
+}
+
+// rotateIfNeeded rotates logger files daily to avoid excessive disk usage 
 func (l *Logger) rotateIfNeeded() error {
 	today := time.Now().Format("2006-01-02")
 	if today == l.currentDay && l.file != nil {
@@ -23,6 +58,11 @@ func (l *Logger) rotateIfNeeded() error {
 
 	newFile := today + ext
 	newFile = filepath.Join(dir, newFile)
+
+	if err := l.enforceRetention(); err != nil {
+		panic(err)
+	}
+
 	f, err := os.OpenFile(newFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
