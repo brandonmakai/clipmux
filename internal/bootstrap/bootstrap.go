@@ -7,7 +7,7 @@ import (
 
 	"github.com/brandonmakai/clipmux/internal/config"
 	"github.com/brandonmakai/clipmux/internal/logger"
-	"github.com/brandonmakai/clipmux/persistence"
+	"github.com/brandonmakai/clipmux/internal/persistence"
 )
 
 const clipMux = ".clipmux"

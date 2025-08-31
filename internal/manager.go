@@ -7,7 +7,7 @@ import (
 
 	"github.com/brandonmakai/clipmux/internal/config"
 	"github.com/brandonmakai/clipmux/internal/logger"
-	"github.com/brandonmakai/clipmux/persistence"
+	"github.com/brandonmakai/clipmux/internal/persistence"
 	hook "github.com/robotn/gohook"
 )
 
@@ -125,7 +125,7 @@ func (cm *ClipboardManager) Run() error {
 
 	for {
 		select {
-		case err := <-errCh:
+		case err := <- errCh:
 			return err
 		default:
 			if err := cm.get(cm.cfg.AllowDuplicates); err != nil {
