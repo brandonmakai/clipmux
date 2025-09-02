@@ -22,7 +22,8 @@ func (ch *ChronologicalHistory) NewestIndex() int {
 // TODO: (Issue #3) Optimize Clipboard Contains Function
 func (ch *ChronologicalHistory) Contains(text string) bool {
 	for _, item := range ch.buf {
-		if string(item.Data) == text {
+		// Check for non-nil data to avoid matching empty slots
+		if item.Data != nil && string(item.Data) == text {
 			return true
 		}
 	}
